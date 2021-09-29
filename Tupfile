@@ -1,0 +1,36 @@
+#no spaces in project name
+PROJ = main.exe
+
+LIBS =
+
+# for flags and more, see https://gcc.gnu.org/onlinedocs/gcc/
+CXXFLAGS = -std=c++20 -Os -s -Wall -Wextra -pedantic -fmax-errors=3 
+CXXFLAGS += -pedantic-errors -Werror=pedantic -Wundef -Wnull-dereference
+CXXFLAGS += -Wduplicated-cond -Wduplicated-branches -Wshadow
+#-Waggregate-return
+CXXFLAGS += -Wswitch -Wswitch-enum -Wswitch-default -Wstrict-overflow=5 
+CXXFLAGS += -Wconversion -Wsign-conversion -Wfloat-equal -Wdouble-promotion
+CXXFLAGS += -Wwrite-strings -Wpointer-arith -Wcast-align=strict -Wcast-qual
+CXXFLAGS += -Wformat=2 -Wformat-signedness -Wformat-y2k -Wformat-overflow=2
+
+# C++ dialect specific stuff
+CXXFLAGS += -Weffc++ -Wnoexcept -Wuseless-cast -Wold-style-cast
+CXXFLAGS += -Wnon-virtual-dtor -Wsuggest-final-types -Wsuggest-final-methods
+CXXFLAGS += -Wsuggest-override -Wsized-deallocation -Wextra-semi
+CXXFLAGS += -Wmultiple-inheritance -Wzero-as-null-pointer-constant
+CXXFLAGS += -fanalyzer
+
+# mutually exclusive address/thread, need to link `-lasan` lib
+#CXXFLAGS += -fsanitize=address,undefined
+#CXXFLAGS += -fsanitize=thread,undefined
+
+LFLAGS =
+#LFLAGS += -static
+# NOTE: sometimes a bug when combining -O3 -flto and -static on windows
+# https://www.reddit.com/r/gcc/comments/a4j8f9/confused_about_behavior_when_combining_o3_flto/
+
+
+
+# Compile compilation units in src dir
+: foreach src/*.cpp |> ^o^ g++ $(CXXFLAGS) $(LFLAGS) -c %f -o %o |> obj/%B.o <objs>
+: <objs> |> g++ $(CXXFLAGS) $(LFLAGS) %<objs> -o %o $(LIBS) |> $(PROJ)
