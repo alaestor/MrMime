@@ -18,10 +18,10 @@ class SkipBytes
 	: m_bytes(number_of_bytes_to_skip)
 	{}
 
-	constexpr operator SizeType() const
+	constexpr inline operator SizeType() const
 	{ return m_bytes; }
 
-	constexpr std::size_t bytes_to_skip() const
+	constexpr inline std::size_t bytes_to_skip() const
 	{ return static_cast<std::size_t>(m_bytes); }
 };
 

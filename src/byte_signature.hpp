@@ -80,23 +80,23 @@ struct Byte_Signature
 private:
 
 	template<typename TUPLE_T_but_different> [[nodiscard]] // TODO tup concept
-	constexpr auto BS_Factory(const TUPLE_T_but_different t) const
+	constexpr inline auto BS_Factory(const TUPLE_T_but_different t) const
 	{ return Byte_Signature<TUPLE_T_but_different>(m_id, t); }
 
 	// signature tuple-element specializations: SkipBytes and StdArrayOfBytes
 
 	[[nodiscard]]
-	static constexpr std::size_t size_of_element(const SkipBytes sb)
+	static inline constexpr std::size_t size_of_element(const SkipBytes sb)
 	{ return sb; }
 
 	template <fgl::StdArrayOfBytes AOB_T> [[nodiscard]]
-	static constexpr std::size_t size_of_element(const AOB_T&)
+	static inline constexpr std::size_t size_of_element(const AOB_T&)
 	{ return sizeof(AOB_T); }
 
 	/// Doesn't perform bounds-checking; onus is on caller!
 	template<std::forward_iterator ITER_T>
 	requires std::same_as<std::byte, std::iter_value_t<ITER_T>>
-	[[nodiscard]] constexpr static bool compare_element(
+	[[nodiscard]] constexpr static inline bool compare_element(
 		ITER_T& cursor, const SkipBytes element)
 	{
 		cursor += element.bytes_to_skip(); // advance cursor
@@ -106,7 +106,7 @@ private:
 	/// Doesn't perform bounds-checking; onus is on caller!
 	template<std::forward_iterator ITER_T, fgl::StdArrayOfBytes SIG_AOB_T>
 	requires std::same_as<std::byte, std::iter_value_t<ITER_T>>
-	[[nodiscard]] static bool compare_element(
+	[[nodiscard]] static inline bool compare_element(
 		ITER_T& cursor, const SIG_AOB_T& element)
 	{
 		const auto cursor_end{ cursor + element.size() };

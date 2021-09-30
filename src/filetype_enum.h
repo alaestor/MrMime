@@ -68,7 +68,7 @@ enum FileType : uint8_t
 	APPLICATION_UNKNOWN = 101,
 };
 
-int hydrus_compatible_filetype(const FileType ft)
+inline int hydrus_compatible_filetype(const FileType ft)
 { // Don't return enum to hydrus directly! Use this for future compatibility.
 	return static_cast<int>(ft);
 }
