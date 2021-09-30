@@ -81,7 +81,7 @@ http://discord.0x04.cc ( Honshitsu#9218 ) */
 #include <array>
 
 #include "fgl_make_byte_array.hpp"
-#include "signature_definitions.hpp"
+#include "filetype_signature_definitions.hpp"
 #include "filetype_strings.hpp"
 
 namespace MrMime {
