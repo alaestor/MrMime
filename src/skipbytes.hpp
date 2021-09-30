@@ -16,7 +16,7 @@ class SkipBytes
 	const SizeType m_bytes{ 0 };
 
 	public:
-	explicit constexpr SkipBytes(const SizeType number_of_bytes_to_skip)
+	[[nodiscard]] constexpr SkipBytes(const SizeType number_of_bytes_to_skip)
 	: m_bytes(number_of_bytes_to_skip)
 	{}
 

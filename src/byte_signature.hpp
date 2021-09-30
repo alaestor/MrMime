@@ -47,6 +47,7 @@ struct Byte_Signature
 	const FileType m_id;
 	const TUPLE_T m_sig;
 
+	[[nodiscard]]
 	explicit constexpr Byte_Signature(const FileType ft, const TUPLE_T sig)
 	: m_id(ft), m_sig(sig)
 	{}
@@ -148,6 +149,7 @@ struct Byte_Signature_Stream_Starter
 { // TODO; is it possible to just get rid of this? empty tuple?
 	const FileType m_id;
 
+	[[nodiscard]]
 	explicit constexpr Byte_Signature_Stream_Starter(const FileType ft)
 	: m_id(ft)
 	{}

@@ -7,7 +7,7 @@
 
 namespace MrMime {
 
-constexpr const char* fileType_to_cstr(const FileType filetype)
+[[nodiscard]] constexpr const char* fileType_to_cstr(const FileType filetype)
 {
 	switch(filetype)
 	{
@@ -63,7 +63,7 @@ constexpr const char* fileType_to_cstr(const FileType filetype)
 	};
 }
 
-std::string fileType_to_string(const FileType filetype)
+[[nodiscard]] std::string fileType_to_string(const FileType filetype)
 {
 	return std::string(fileType_to_cstr(filetype));
 }
