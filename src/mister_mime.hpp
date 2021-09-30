@@ -88,6 +88,8 @@ namespace MrMime {
 typedef std::array<std::byte, internal::size_of_largest_signature>
 	header_data_buffer_t;
 
+/// Attempts to match a signature with an array of bytes
+// returns FileType::APPLICATION_UNKNOWN if no signature match is made.
 FileType deduceFileType(const header_data_buffer_t& header_data)
 {
 	using namespace MrMime::internal;

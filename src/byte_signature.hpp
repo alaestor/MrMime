@@ -16,9 +16,30 @@ namespace internal {
 /*** TODO
 Tuple concepts: expects tuple<array<byte>>,
 
-To accomodate KJ:
-break out comparator methods to be loose functions in own hpp,
-ideally taking a range view or span(?), rather than array<byte>& */
+Suggestion from me, to future me:
+
+	Could make MatchBytes wrapper class for std::array<byte>, then:
+	Boolean match() methods could handle matching for SkipBytes and MatchBytes.
+	Compare_element complexity could be offloaded from Byte_Signature.
+
+	Could implement overloaded bounds-checking match methods without ugliness.
+
+	Byte_Signature would be easier to read without compare_element()
+
+	Compare() would just...
+
+	const bool arr_matches_sig{
+		std::apply(
+			[&]<typename ... ELEMENTS>(const ELEMENTS& ... elements)
+			-> bool
+			{
+				auto cursor{ arr.cbegin() };
+				return (elements.match(cursor) && ...);
+			},
+			m_sig
+		)
+	};
+*/
 
 template<typename TUPLE_T> // expects tuple<array<byte>>, TODO concept
 struct Byte_Signature
@@ -30,6 +51,7 @@ struct Byte_Signature
 	: m_id(ft), m_sig(sig)
 	{}
 
+	/// Returns the size in bytes of the signature
 	[[nodiscard]] constexpr std::size_t size() const
 	{
 		return std::apply(
@@ -43,7 +65,7 @@ struct Byte_Signature
 	}
 
 	/// Doesn't perform bounds-checking; onus is on caller!
-	// Undefined behavior if ARRAY_T is less than size()
+	// Undefined behavior if size of ARRAY_T is less than size()
 	template<fgl::StdArrayOfBytes ARRAY_T> [[nodiscard]]
 	bool compare(FileType& ft_out, const ARRAY_T& arr) const
 	{
@@ -121,8 +143,9 @@ private:
 	}
 };
 
+/// A factory object used as the initial component of a signature stream
 struct Byte_Signature_Stream_Starter
-{
+{ // TODO; is it possible to just get rid of this? empty tuple?
 	const FileType m_id;
 
 	explicit constexpr Byte_Signature_Stream_Starter(const FileType ft)

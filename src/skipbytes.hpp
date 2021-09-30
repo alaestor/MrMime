@@ -8,6 +8,8 @@
 namespace MrMime {
 namespace internal {
 
+/// To be used in a byte signature stream, representing N bytes to skip over
+// Acts as a wildcard match: SkipBytes(2) will match to any two bytes.
 class SkipBytes
 {
 	using SizeType = uint8_t;

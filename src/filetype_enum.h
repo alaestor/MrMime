@@ -68,6 +68,8 @@ enum FileType : uint8_t
 	APPLICATION_UNKNOWN = 101,
 };
 
+/// Returns a FileType signed integer constant that's compatible with Hydrus
+// Don't return FileType enum directly! Use this to ensure compatibility.
 inline int hydrus_compatible_filetype(const FileType ft)
 { return static_cast<int>(ft); }
 
