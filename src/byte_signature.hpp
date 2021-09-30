@@ -42,17 +42,6 @@ struct Byte_Signature
 		);
 	}
 
-	template<std::size_t LEN> [[nodiscard]]
-	constexpr auto operator<<(const char (&cstr)[LEN]) const
-	{
-		return Byte_Signature_Factory(
-			std::tuple_cat(m_sig, std::tuple(fgl::make_byte_array(cstr)))
-		);
-	}
-
-	[[nodiscard]] constexpr auto operator<<(const SkipBytes sb) const
-	{ return Byte_Signature_Factory(std::tuple_cat(m_sig, std::tuple(sb))); }
-
 	/// Doesn't perform bounds-checking; onus is on caller!
 	// Undefined behavior if ARRAY_T is less than size()
 	template<fgl::StdArrayOfBytes ARRAY_T> [[nodiscard]]
@@ -77,6 +66,16 @@ struct Byte_Signature
 
 		return arr_matches_sig;
 	}
+
+	template<std::size_t LEN> [[nodiscard]]
+	constexpr auto operator<<(const char (&cstr)[LEN]) const
+	{
+		return Byte_Signature_Factory(
+			std::tuple_cat(m_sig, std::tuple(fgl::make_byte_array(cstr))));
+	}
+
+	[[nodiscard]] constexpr auto operator<<(const SkipBytes sb) const
+	{ return Byte_Signature_Factory(std::tuple_cat(m_sig, std::tuple(sb))); }
 
 private:
 
