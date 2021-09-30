@@ -70,17 +70,17 @@ struct Byte_Signature
 	template<std::size_t LEN> [[nodiscard]]
 	constexpr auto operator<<(const char (&cstr)[LEN]) const
 	{
-		return Byte_Signature_Factory(
+		return BS_Factory(
 			std::tuple_cat(m_sig, std::tuple(fgl::make_byte_array(cstr))));
 	}
 
 	[[nodiscard]] constexpr auto operator<<(const SkipBytes sb) const
-	{ return Byte_Signature_Factory(std::tuple_cat(m_sig, std::tuple(sb))); }
+	{ return BS_Factory(std::tuple_cat(m_sig, std::tuple(sb))); }
 
 private:
 
 	template<typename TUPLE_T_but_different> [[nodiscard]] // TODO tup concept
-	constexpr auto Byte_Signature_Factory(const TUPLE_T_but_different t) const
+	constexpr auto BS_Factory(const TUPLE_T_but_different t) const
 	{ return Byte_Signature<TUPLE_T_but_different>(m_id, t); }
 
 	// signature tuple-element specializations: SkipBytes and StdArrayOfBytes
