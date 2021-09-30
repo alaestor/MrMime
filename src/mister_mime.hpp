@@ -80,7 +80,6 @@ http://discord.0x04.cc ( Honshitsu#9218 ) */
 #include <tuple>
 #include <array>
 
-#include "fgl_make_byte_array.hpp"
 #include "filetype_signature_definitions.hpp"
 #include "filetype_strings.hpp"
 
