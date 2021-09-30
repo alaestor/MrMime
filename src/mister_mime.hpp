@@ -93,7 +93,7 @@ FileType compareSignaturesTo(const header_data_buffer_t& header_data)
 {
 	using namespace MrMime::internal;
 	return std::apply(
-		[header_data]<typename ... SIGS>(const SIGS& ... sigs)
+		[&header_data]<typename ... SIGS>(const SIGS& ... sigs)
 		-> FileType
 		{
 			FileType result{ APPLICATION_UNKNOWN };
