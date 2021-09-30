@@ -53,17 +53,20 @@ struct Byte_Signature
 	[[nodiscard]] constexpr auto operator<<(const SkipBytes sb) const
 	{ return Byte_Signature_Factory(std::tuple_cat(m_sig, std::tuple(sb))); }
 
+	/// Doesn't perform bounds-checking; onus is on caller!
+	// Undefined behavior if ARRAY_T is less than size()
 	template<fgl::StdArrayOfBytes ARRAY_T> [[nodiscard]]
 	bool compare(FileType& ft_out, const ARRAY_T& arr) const
 	{
+		// this could be done with more info about TUPLE_T's elements
+		// static_assert(sizeof(ARRAY_T) >= size());
 		const bool arr_matches_sig{
 			std::apply(
 				[&]<typename ... ELEMENTS>(const ELEMENTS& ... elements)
 				-> bool
 				{
 					auto cursor{ arr.cbegin() };
-					const auto cend{ arr.cend() };
-					return (compare_element(cursor, cend, elements) && ...);
+					return (compare_element(cursor, elements) && ...);
 				},
 				m_sig
 			)
@@ -77,9 +80,9 @@ struct Byte_Signature
 
 private:
 
-	template<typename TUPLE_T_but_different> [[nodiscard]]
+	template<typename TUPLE_T_but_different> [[nodiscard]] // TODO tup concept
 	constexpr auto Byte_Signature_Factory(const TUPLE_T_but_different t) const
-	{ return Byte_Signature<TUPLE_T_but_different>(m_id, t); } // AAAAAAAAAAAA
+	{ return Byte_Signature<TUPLE_T_but_different>(m_id, t); }
 
 	// signature tuple-element specializations: SkipBytes and StdArrayOfBytes
 
@@ -91,36 +94,29 @@ private:
 	static constexpr std::size_t size_of_element(const AOB_T&)
 	{ return sizeof(AOB_T); }
 
+	/// Doesn't perform bounds-checking; onus is on caller!
 	template<std::forward_iterator ITER_T>
-	[[nodiscard]]
-	static bool compare_element(
-		ITER_T& cursor,
-		const ITER_T cend,
-		const SkipBytes element)
+	requires std::same_as<std::byte, std::iter_value_t<ITER_T>>
+	[[nodiscard]] constexpr static bool compare_element(
+		ITER_T& cursor, const SkipBytes element)
 	{
-		const auto range_end{ cursor + element.bytes_to_skip() };
-		assert(range_end <= cend);
-		cursor = range_end; // advance cursor
+		cursor += element.bytes_to_skip(); // advance cursor
 		return true;
 	}
 
+	/// Doesn't perform bounds-checking; onus is on caller!
 	template<std::forward_iterator ITER_T, fgl::StdArrayOfBytes SIG_AOB_T>
+	requires std::same_as<std::byte, std::iter_value_t<ITER_T>>
 	[[nodiscard]] static bool compare_element(
-		ITER_T& cursor,
-		const ITER_T cend,
-		const SIG_AOB_T& element)
+		ITER_T& cursor, const SIG_AOB_T& element)
 	{
-		const auto cmp_range_begin{ cursor };
-		const auto cmp_range_end{ cursor + element.size() };
-		assert(cmp_range_end <= cend);
+		const auto cursor_end{ cursor + element.size() };
 
 		const bool eq_result{
-			std::equal(
-				cmp_range_begin, cmp_range_end,
-				element.cbegin(), element.cend())
+			std::equal(cursor, cursor_end, element.cbegin(), element.cend())
 		};
 
-		cursor = cmp_range_end; // advance cursor
+		cursor = cursor_end; // advance cursor
 
 		return eq_result;
 	}

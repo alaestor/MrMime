@@ -97,6 +97,8 @@ FileType deduceFileType(const header_data_buffer_t& header_data)
 		{
 			FileType result{ APPLICATION_UNKNOWN };
 
+			/// Would be undefined behavior if header_data was < sig.size()
+			// Note: header_data_buffer_t is guaranteed to be >= sig.size()
 			(sigs.compare(result, header_data) || ...);
 
 			return result;
