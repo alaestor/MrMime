@@ -18,7 +18,7 @@ CXXFLAGS += -Weffc++ -Wnoexcept -Wuseless-cast -Wold-style-cast
 CXXFLAGS += -Wnon-virtual-dtor -Wsuggest-final-types -Wsuggest-final-methods
 CXXFLAGS += -Wsuggest-override -Wsized-deallocation -Wextra-semi
 CXXFLAGS += -Wmultiple-inheritance -Wzero-as-null-pointer-constant
-CXXFLAGS += -fanalyzer
+#CXXFLAGS += -fanalyzer
 
 # mutually exclusive address/thread, need to link `-lasan` lib
 #CXXFLAGS += -fsanitize=address,undefined
