@@ -11,7 +11,7 @@ using std::cout, std::endl;
 using
 	MrMime::FileType,
 	MrMime::header_data_buffer_t,
-	MrMime::compareSignaturesTo,
+	MrMime::deduceFileType,
 	MrMime::hydrus_compatible_filetype;
 
 void example_scan_directory(const fs::path folder_path)
@@ -50,7 +50,7 @@ void example_scan_directory(const fs::path folder_path)
 					continue;
 				}
 
-				const FileType filetype{ compareSignaturesTo(buffer) };
+				const FileType filetype{ deduceFileType(buffer) };
 
 				cout
 					<< fileType_to_string(filetype)

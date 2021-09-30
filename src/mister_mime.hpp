@@ -88,7 +88,7 @@ namespace MrMime {
 typedef std::array<std::byte, internal::size_of_largest_signature>
 	header_data_buffer_t;
 
-FileType compareSignaturesTo(const header_data_buffer_t& header_data)
+FileType deduceFileType(const header_data_buffer_t& header_data)
 {
 	using namespace MrMime::internal;
 	return std::apply(
