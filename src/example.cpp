@@ -4,70 +4,78 @@
 
 #include "mister_mime.hpp"
 
-namespace fs = std::filesystem;
-
-using std::cout, std::endl;
-
 using
 	MrMime::FileType,
 	MrMime::header_data_buffer_t,
 	MrMime::deduceFileType,
 	MrMime::hydrus_compatible_filetype;
 
-void example_scan_directory(const fs::path folder_path)
+void example_scan_directory(const std::filesystem::path folder_path)
 {
-	header_data_buffer_t buffer{};
-	char* const buffer_ptr{ reinterpret_cast<char*>(buffer.data()) };
+	namespace fs = std::filesystem;
 
-	try
-	{
-		for (const auto& dir_entry : fs::directory_iterator(folder_path))
+	const auto read_fileheader_to_buffer{
+		[](const fs::path& filepath, header_data_buffer_t& buffer)
 		{
-			if (dir_entry.is_regular_file())
+			auto ifs{ std::ifstream(filepath, std::ios::binary) };
+
+			// could use exceptions instead:
+			//ifs.exceptions(ifs.badbit | ifs.failbit | ifs.eofbit);
+
+			if (!ifs.is_open()) [[unlikely]]
 			{
-				const auto filepath{ dir_entry.path() };
+				std::cerr << "failed to open file: " << filepath << std::endl;
+				return false;
+			}
 
-				auto ifs{ std::ifstream(filepath, std::ios::binary) };
+			if (!ifs.seekg(ifs.beg)) [[unlikely]]
+			{
+				std::cerr << "failed to seekg file: " << filepath << std::endl;
+				return false;
+			}
 
-				// could use exceptions instead:
-				//ifs.exceptions(ifs.badbit | ifs.failbit | ifs.eofbit);
+			if (!ifs.read(
+					reinterpret_cast<char*>(buffer.data()),
+					static_cast<std::streamsize>(buffer.size()))) [[unlikely]]
+			{
+				std::cerr << "failed to read file: " << filepath << std::endl;
+				return false;
+			}
 
-				if (!ifs.is_open()) [[unlikely]]
-				{
-					std::cerr << "failed to open file: " << filepath << endl;
-					continue;
-				}
+			return true;
+		}
+	};
 
-				if (!ifs.seekg(ifs.beg)) [[unlikely]]
-				{
-					std::cerr << "failed to seekg file: " << filepath << endl;
-					continue;
-				}
-
-				if (!ifs.read(buffer_ptr, buffer.size())) [[unlikely]]
-				{
-					std::cerr << "failed to read file: " << filepath << endl;
-					continue;
-				}
-
+	for (header_data_buffer_t buffer{};
+		const auto& dir_entry : fs::directory_iterator(folder_path))
+	{
+		if (dir_entry.is_regular_file())
+		{
+			if (const auto filepath{ dir_entry.path() };
+				read_fileheader_to_buffer(filepath, buffer)) [[likely]]
+			{
 				const FileType filetype{ deduceFileType(buffer) };
 
-				cout
+				std::cout
 					<< fileType_to_string(filetype)
 					<< " (" << hydrus_compatible_filetype(filetype) << "): "
-					<< filepath.filename() << endl;
+					<< filepath.filename()
+					<< std::endl;
 			}
 		}
-	}
-	catch (const std::exception& e)
-	{
-		std::cerr << e.what() << endl;
 	}
 }
 
 int main()
 {
-	example_scan_directory("test_dump");
+	try
+	{
+		example_scan_directory("test_dump");
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << e.what() << std::endl;
+	}
 
 	// bellow here is just a print-out of some internal Mr.Mime statistics
 
@@ -85,13 +93,13 @@ int main()
 		)
 	};
 
-	cout
+	std::cout
 		<< "\n\t" << signature_count << " signatures defined, "
 		<< " consuming " << sizeof(Signatures_t) << " bytes "
 		<< "(matches to " << size_including_skipped_bytes << " bytes)\n"
 		<< "\tThe largest signature (and the header_data_buffer_t) is "
 		<< size_of_largest_signature << " bytes\n"
-		<< endl;
+		<< std::endl;
 
 	return 0;
 }
