@@ -25,6 +25,9 @@ class SkipBytes
 
 	constexpr inline std::size_t bytes_to_skip() const
 	{ return static_cast<std::size_t>(m_bytes); }
+
+	constexpr inline std::size_t size() const
+	{ return static_cast<std::size_t>(m_bytes); }
 };
 
 } // namespace internal
