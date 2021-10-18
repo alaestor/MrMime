@@ -95,10 +95,8 @@ struct Byte_Signature
 	[[nodiscard]] constexpr auto operator<<(MatchBytes<LEN> mb) const
 	{ return BS_Factory(std::tuple_cat(m_sig, std::tuple(mb))); }
 
-	// SkipBytes
-
-	//[[nodiscard]] constexpr auto operator<<(const std::size_t s) const
-	//{ return BS_Factory(std::tuple_cat(m_sig, std::tuple(SkipBytes(s)))); }
+	[[nodiscard]] constexpr auto operator<<(const SkipBytes::SizeType s) const
+	{ return BS_Factory(std::tuple_cat(m_sig, std::tuple(SkipBytes(s)))); }
 
 	[[nodiscard]] constexpr auto operator<<(const SkipBytes sb) const
 	{ return BS_Factory(std::tuple_cat(m_sig, std::tuple(sb))); }

@@ -13,7 +13,9 @@ namespace internal {
 // Acts as a wildcard: SkipBytes(2) will match any two bytes.
 class SkipBytes
 {
-	using SizeType = uint8_t;
+	public: typedef uint8_t SizeType;
+
+	private:
 	const SizeType m_bytes{ 0 };
 
 	public:
