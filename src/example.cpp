@@ -88,7 +88,8 @@ int main()
 	constexpr std::size_t size_including_skipped_bytes{
 		std::apply(
 			[]<typename ... SIGS>(const SIGS& ... sigs)
-				constexpr -> std::size_t { return (sigs.size() + ...); },
+				constexpr noexcept -> std::size_t
+				{ return (sigs.size() + ...); },
 			signatures
 		)
 	};
