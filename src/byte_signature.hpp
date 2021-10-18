@@ -8,38 +8,32 @@
 
 #include "filetype_enum.h"
 #include "skipbytes.hpp"
-#include "fgl_make_byte_array.hpp"
 
 namespace MrMime {
 namespace internal {
 
 /*** TODO
 Tuple concepts: expects tuple<array<byte>>,
-
-Suggestion from me, to future me:
-
-	Could make MatchBytes wrapper class for std::array<byte>, then:
-	Boolean match() methods could handle matching for SkipBytes and MatchBytes.
-	Compare_element complexity could be offloaded from Byte_Signature.
-
-	Could implement overloaded bounds-checking match methods without ugliness.
-
-	Byte_Signature would be easier to read without compare_element()
-
-	Compare() would just...
-
-	const bool arr_matches_sig{
-		std::apply(
-			[&]<typename ... ELEMENTS>(const ELEMENTS& ... elements)
-			-> bool
-			{
-				auto cursor{ arr.cbegin() };
-				return (elements.match(cursor) && ...);
-			},
-			m_sig
-		)
-	};
 */
+
+template <class T>
+concept StdArrayOfBytes = requires
+{
+	requires std::same_as<
+		std::byte,
+		std::remove_cv_t<typename T::value_type>>;
+
+	requires std::same_as<
+		std::array<typename T::value_type, sizeof(T)>,
+		std::remove_cv_t<T>>;
+};
+
+template <class T>
+concept StdArrayOfConstBytes = requires
+{
+	requires StdArrayOfBytes<T>;
+	requires std::is_const_v<typename T::value_type>;
+};
 
 template<typename TUPLE_T> // expects tuple<array<byte>>, TODO concept
 struct Byte_Signature
@@ -67,7 +61,7 @@ struct Byte_Signature
 
 	/// Doesn't perform bounds-checking; onus is on caller!
 	// Undefined behavior if size of ARRAY_T is less than size()
-	template<fgl::StdArrayOfBytes ARRAY_T> [[nodiscard]]
+	template<StdArrayOfBytes ARRAY_T> [[nodiscard]]
 	bool compare(FileType& ft_out, const ARRAY_T& arr) const
 	{
 		// this could be done with more info about TUPLE_T's elements
