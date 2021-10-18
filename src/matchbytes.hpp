@@ -71,6 +71,8 @@ class MatchBytes
 	{ return m_bytes.cend(); }
 };
 
+static_assert(std::ranges::random_access_range<MatchBytes<1>>);
+
 } // namespace internal
 } // namespace MrMime
 
