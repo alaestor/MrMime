@@ -43,9 +43,6 @@ class SkipBytes
 		return matches(temp_cursor);
 	}
 
-	constexpr inline operator SizeType() const noexcept
-	{ return m_bytes; }
-
 	constexpr inline std::size_t bytes_to_skip() const noexcept
 	{ return static_cast<std::size_t>(m_bytes); }
 
