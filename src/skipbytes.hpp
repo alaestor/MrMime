@@ -2,7 +2,7 @@
 #ifndef MRMIME_SKIPBYTES_HPP_INCLUDED
 #define MRMIME_SKIPBYTES_HPP_INCLUDED
 
-#include <cstddef> // std::size_t
+#include <cstddef> // size_t, byte
 #include <cstdint> // uint8_t
 #include <iterator> // forward_iterator, iter_value_t
 
