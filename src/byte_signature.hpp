@@ -8,6 +8,7 @@
 
 #include "filetype_enum.h"
 #include "skipbytes.hpp"
+#include "matchbytes.hpp"
 
 namespace MrMime {
 namespace internal {
@@ -47,13 +48,13 @@ struct Byte_Signature
 	{}
 
 	/// Returns the size in bytes of the signature
-	[[nodiscard]] constexpr std::size_t size() const
+	[[nodiscard]] constexpr std::size_t size() const noexcept
 	{
 		return std::apply(
-			[]<typename ... ELEMENT_TS>(const ELEMENT_TS& ... elements)
-			constexpr -> std::size_t
+			[]<typename ... ELEMENTS>(const ELEMENTS& ... elements)
+			constexpr noexcept -> std::size_t
 			{
-				return (size_of_element(elements) + ...);
+				return (elements.size() + ...);
 			},
 			m_sig
 		);
@@ -72,7 +73,7 @@ struct Byte_Signature
 				-> bool
 				{
 					auto cursor{ arr.cbegin() };
-					return (compare_element(cursor, elements) && ...);
+					return (elements.matches(cursor) && ...);
 				},
 				m_sig
 			)
@@ -84,12 +85,20 @@ struct Byte_Signature
 		return arr_matches_sig;
 	}
 
-	template<std::size_t LEN> [[nodiscard]]
-	constexpr auto operator<<(const char (&cstr)[LEN]) const
-	{
-		return BS_Factory(
-			std::tuple_cat(m_sig, std::tuple(fgl::make_byte_array(cstr))));
-	}
+	// MatchBytes
+
+	template <std::size_t LEN>
+	[[nodiscard]] constexpr auto operator<<(const char (&cstr)[LEN]) const
+	{ return BS_Factory(std::tuple_cat(m_sig, std::tuple(MatchBytes(cstr)))); }
+
+	template <std::size_t LEN>
+	[[nodiscard]] constexpr auto operator<<(MatchBytes<LEN> mb) const
+	{ return BS_Factory(std::tuple_cat(m_sig, std::tuple(mb))); }
+
+	// SkipBytes
+
+	//[[nodiscard]] constexpr auto operator<<(const std::size_t s) const
+	//{ return BS_Factory(std::tuple_cat(m_sig, std::tuple(SkipBytes(s)))); }
 
 	[[nodiscard]] constexpr auto operator<<(const SkipBytes sb) const
 	{ return BS_Factory(std::tuple_cat(m_sig, std::tuple(sb))); }
@@ -99,43 +108,6 @@ private:
 	template<typename TUPLE_T_but_different> [[nodiscard]] // TODO tup concept
 	constexpr inline auto BS_Factory(const TUPLE_T_but_different t) const
 	{ return Byte_Signature<TUPLE_T_but_different>(m_id, t); }
-
-	// signature tuple-element specializations: SkipBytes and StdArrayOfBytes
-
-	[[nodiscard]]
-	static inline constexpr std::size_t size_of_element(const SkipBytes sb)
-	{ return sb; }
-
-	template <fgl::StdArrayOfBytes AOB_T> [[nodiscard]]
-	static inline constexpr std::size_t size_of_element(const AOB_T&)
-	{ return sizeof(AOB_T); }
-
-	/// Doesn't perform bounds-checking; onus is on caller!
-	template<std::forward_iterator ITER_T>
-	requires std::same_as<std::byte, std::iter_value_t<ITER_T>>
-	[[nodiscard]] constexpr static inline bool compare_element(
-		ITER_T& cursor, const SkipBytes element)
-	{
-		cursor += element.bytes_to_skip(); // advance cursor
-		return true;
-	}
-
-	/// Doesn't perform bounds-checking; onus is on caller!
-	template<std::forward_iterator ITER_T, fgl::StdArrayOfBytes SIG_AOB_T>
-	requires std::same_as<std::byte, std::iter_value_t<ITER_T>>
-	[[nodiscard]] static inline bool compare_element(
-		ITER_T& cursor, const SIG_AOB_T& element)
-	{
-		const auto cursor_end{ cursor + element.size() };
-
-		const bool eq_result{
-			std::equal(cursor, cursor_end, element.cbegin(), element.cend())
-		};
-
-		cursor = cursor_end; // advance cursor
-
-		return eq_result;
-	}
 };
 
 /// A factory object used as the initial component of a signature stream
@@ -148,9 +120,20 @@ struct Byte_Signature_Stream_Starter
 	: m_id(ft)
 	{}
 
+	// MatchBytes
+
 	template<std::size_t LEN>
 	[[nodiscard]] constexpr auto operator<<(const char (&cstr)[LEN]) const
-	{ return Byte_Signature(m_id, std::tuple(fgl::make_byte_array(cstr))); }
+	{ return Byte_Signature(m_id, std::tuple(MatchBytes(cstr))); }
+
+	template<std::size_t LEN>
+	[[nodiscard]] constexpr auto operator<<(MatchBytes<LEN> mb) const
+	{ return Byte_Signature(m_id, std::tuple(mb)); }
+
+	// SkipBytes
+
+	//[[nodiscard]] constexpr auto operator<<(const std::size_t s) const
+	//{ return Byte_Signature(m_id, std::tuple(SkipBytes(s))); }
 
 	[[nodiscard]] constexpr auto operator<<(const SkipBytes sb) const
 	{ return Byte_Signature(m_id, std::tuple(sb)); }
